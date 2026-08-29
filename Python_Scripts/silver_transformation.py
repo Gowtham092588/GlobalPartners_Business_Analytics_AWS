@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 AWS_REGION = "us-east-2"
 BRONZE_BUCKET = "globalpartners-aws-data-bkt"
-SILVER_BUCKET = "healthcare-proj-data-bkt"
-QUARANTINE_BUCKET = "healthcare-proj-error-bkt"
+SILVER_BUCKET = "globalpartners-aws-data-bkt"
+QUARANTINE_BUCKET = "globalpartners-aws-error-bkt"
 
 
 def load_config(bucket, key):
@@ -350,12 +350,12 @@ def write_silver_table(df, table_name, config):
                 .save(silver_path)
             )
 
-        elif load_type == "SCD1":
+        elif load_type == "MERGE":
 
             logger.info(
-                f"Performing SCD1 Silver load for {table_name}")
+                f"Performing Silver load for {table_name}")
 
-            apply_scd1(df, config)
+            merge_current_records(df, config)
 
         else:
 

@@ -34,120 +34,33 @@ AWS_REGION = 'us-east-2'
 S3_DATA_BUCKET = "globalpartners-aws-data-bkt"
 S3_ERROR_BUCKET = "globalpartners-aws-error-bkt"
 
-TABLE_CONFIG = {
-    "order_items": {
-        "source_table": "dbo.order_items",
-        "business_keys": [
-            "ORDER_ID",
-            "LINEITEM_ID"
-        ],
-        "watermark_column": "updated_at",
-        "checkpoint_key": "checkpoints/order_items_checkpoint.json",
-        "bronze_path": "bronze/order_items/",
-        "error_path": "dq_errors/order_items/",
-        "required_columns": [
-            "ORDER_ID",
-            "LINEITEM_ID",
-            "RESTAURANT_ID",
-            "CREATION_TIME_UTC",
-            "ITEM_NAME",
-            "ITEM_PRICE",
-            "ITEM_QUANTITY"
-        ],
-        # A line item should be unique
-        # inside an order
-        "duplicate_columns": [
-            "ORDER_ID",
-            "LINEITEM_ID"
-        ],
-        # Must be greater than zero
-        "positive_columns": [
-            "ITEM_QUANTITY"
-        ],
-        # Can be zero but not negative
-        "non_negative_columns": [
-            "ITEM_PRICE"
-        ],
-
-        "range_rules": {}
-    },
-
-    "order_item_options": {
-        "source_table": "dbo.order_item_options",
-        "business_keys": [
-            "option_id"
-        ],
-        "watermark_column": "updated_at",
-        "checkpoint_key": "checkpoints/order_item_options_checkpoint.json",
-        "bronze_path": "bronze/order_item_options/",
-        "error_path": "dq_errors/order_item_options/",
-        "required_columns": [
-            "ORDER_ID",
-            "LINEITEM_ID",
-            "OPTION_GROUP_NAME",
-            "OPTION_NAME",
-            "OPTION_PRICE",
-            "OPTION_QUANTITY"
-        ],
-        # Exact duplicate definition
-        "duplicate_columns": [
-            "ORDER_ID",
-            "LINEITEM_ID",
-            "OPTION_GROUP_NAME",
-            "OPTION_NAME",
-            "OPTION_PRICE",
-            "OPTION_QUANTITY"
-        ],
-        "positive_columns": [
-            "OPTION_QUANTITY"
-        ],
-        # Do NOT put OPTION_PRICE here.
-        # Negative option price may represent
-        # a discount.
-        "non_negative_columns": [],
-        "range_rules": {}
-    },
-
-
-    "date_dim": {
-        "source_table": "dbo.date_dim",
-        "business_keys": [
-            "DATE_KEY"
-        ],
-        "watermark_column": "updated_at",
-        "checkpoint_key": "checkpoints/date_dim_checkpoint.json",
-        "bronze_path": "bronze/date_dim/",
-        "error_path": "dq_errors/date_dim/",
-        "required_columns": [
-            "DATE_KEY",
-            "DAY_OF_WEEK",
-            "WEEK",
-            "MONTH",
-            "YEAR",
-            "IS_WEEKEND",
-            "IS_HOLIDAY"
-        ],
-        "duplicate_columns": [
-            "DATE_KEY"
-        ],
-        "positive_columns": [],
-        "non_negative_columns": [],
-        "range_rules": {
-            "MONTH": {
-                "min": 1,
-                "max": 12
-            },
-            "WEEK": {
-                "min": 1,
-                "max": 53
-            }
-        }
-    }
-}
-
 
 def get_s3_client():
     return boto3.client('s3', region_name=AWS_REGION)
+
+
+def load_config(bucket, key):
+
+    try:
+
+        logger.info("Starting to load bronze config json file.")
+
+        s3 = get_s3_client()
+
+        response = s3.get_object(
+            Bucket=bucket,
+            Key=key
+        )
+
+        config_data = response["Body"].read().decode("utf-8")
+
+        return json.loads(config_data)
+
+    except Exception as e:
+
+        logger.exception("Failed to load the config file")
+
+        raise
 
 
 def load_checkpoint(s3, checkpoint_key):
@@ -459,9 +372,12 @@ def main():
 
         table_name = args["TABLE_NAME"]
 
+        bronze_config = load_config(
+            "globalpartners-aws-data-bkt", "config/bronze_table_config.json")
+
         logger.info(f"Starting Bronze ingestion for {table_name}")
 
-        config = TABLE_CONFIG[table_name]
+        config = bronze_config[table_name]
 
         s3 = get_s3_client()
 

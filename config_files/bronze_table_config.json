@@ -1,0 +1,98 @@
+{
+    "order_items": {
+        "source_table": "dbo.order_items",
+        "business_keys": [
+            "ORDER_ID",
+            "LINEITEM_ID"
+        ],
+        "watermark_column": "updated_at",
+        "checkpoint_key": "checkpoints/order_items_checkpoint.json",
+        "bronze_path": "bronze/order_items/",
+        "error_path": "dq_errors/order_items/",
+        "required_columns": [
+            "ORDER_ID",
+            "LINEITEM_ID",
+            "RESTAURANT_ID",
+            "CREATION_TIME_UTC",
+            "ITEM_NAME",
+            "ITEM_PRICE",
+            "ITEM_QUANTITY"
+        ],
+        "duplicate_columns": [
+            "ORDER_ID",
+            "LINEITEM_ID"
+        ],
+        "positive_columns": [
+            "ITEM_QUANTITY"
+        ],
+        "non_negative_columns": [
+            "ITEM_PRICE"
+        ],
+        "range_rules": {}
+    },
+    "order_item_options": {
+        "source_table": "dbo.order_item_options",
+        "business_keys": [
+            "option_id"
+        ],
+        "watermark_column": "updated_at",
+        "checkpoint_key": "checkpoints/order_item_options_checkpoint.json",
+        "bronze_path": "bronze/order_item_options/",
+        "error_path": "dq_errors/order_item_options/",
+        "required_columns": [
+            "ORDER_ID",
+            "LINEITEM_ID",
+            "OPTION_GROUP_NAME",
+            "OPTION_NAME",
+            "OPTION_PRICE",
+            "OPTION_QUANTITY"
+        ],
+        "duplicate_columns": [
+            "ORDER_ID",
+            "LINEITEM_ID",
+            "OPTION_GROUP_NAME",
+            "OPTION_NAME",
+            "OPTION_PRICE",
+            "OPTION_QUANTITY"
+        ],
+        "positive_columns": [
+            "OPTION_QUANTITY"
+        ],
+        "non_negative_columns": [],
+        "range_rules": {}
+    },
+    "date_dim": {
+        "source_table": "dbo.date_dim",
+        "business_keys": [
+            "DATE_KEY"
+        ],
+        "watermark_column": "updated_at",
+        "checkpoint_key": "checkpoints/date_dim_checkpoint.json",
+        "bronze_path": "bronze/date_dim/",
+        "error_path": "dq_errors/date_dim/",
+        "required_columns": [
+            "DATE_KEY",
+            "DAY_OF_WEEK",
+            "WEEK",
+            "MONTH",
+            "YEAR",
+            "IS_WEEKEND",
+            "IS_HOLIDAY"
+        ],
+        "duplicate_columns": [
+            "DATE_KEY"
+        ],
+        "positive_columns": [],
+        "non_negative_columns": [],
+        "range_rules": {
+            "MONTH": {
+                "min": 1,
+                "max": 12
+            },
+            "WEEK": {
+                "min": 1,
+                "max": 53
+            }
+        }
+    }
+}
