@@ -1,0 +1,72 @@
+{
+    "order_items": {
+        "bronze_path": "bronze/order_items/",
+        "silver_path": "silver/order_items/",
+        "load_type": "FULL",
+        "business_keys": [
+            "ORDER_ID",
+            "LINEITEM_ID"
+        ],
+        "write_mode": "overwrite",
+        "watermark_column": "updated_at",
+        "cast_columns": {
+            "APP_NAME": "string",
+            "RESTAURANT_ID": "string",
+            "CREATION_TIME_UTC": "timestamp",
+            "ORDER_ID": "string",
+            "USER_ID": "string",
+            "PRINTED_CARD_NUMBER": "string",
+            "IS_LOYALTY": "boolean",
+            "CURRENCY": "string",
+            "LINEITEM_ID": "string",
+            "ITEM_CATEGORY": "string",
+            "ITEM_NAME": "string",
+            "ITEM_PRICE": "decimal(10,2)",
+            "ITEM_QUANTITY": "int",
+            "updated_at": "timestamp",
+            "_ingested_at": "timestamp"
+        }
+    },
+    "order_item_options": {
+        "bronze_path": "bronze/order_item_options/",
+        "silver_path": "silver/order_item_options/",
+        "load_type": "FULL",
+        "business_keys": [
+            "option_id"
+        ],
+        "write_mode": "overwrite",
+        "watermark_column": "updated_at",
+        "cast_columns": {
+            "ORDER_ID": "string",
+            "LINEITEM_ID": "string",
+            "OPTION_GROUP_NAME": "string",
+            "OPTION_NAME": "string",
+            "OPTION_PRICE": "decimal(10,2)",
+            "OPTION_QUANTITY": "int",
+            "updated_at": "timestamp",
+            "_ingested_at": "timestamp"
+        }
+    },
+    "date_dim": {
+        "bronze_path": "bronze/date_dim/",
+        "silver_path": "silver/date_dim/",
+        "load_type": "SCD1",
+        "business_keys": [
+            "DATE_KEY"
+        ],
+        "write_mode": "merge",
+        "watermark_column": "updated_at",
+        "cast_columns": {
+            "DATE_KEY": "date",
+            "DAY_OF_WEEK": "string",
+            "WEEK": "int",
+            "MONTH": "int",
+            "YEAR": "int",
+            "IS_WEEKEND": "boolean",
+            "IS_HOLIDAY": "boolean",
+            "HOLIDAY_NAME": "string",
+            "updated_at": "timestamp",
+            "_ingested_at": "timestamp"
+        }
+    }
+}

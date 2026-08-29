@@ -1,0 +1,204 @@
+{
+    "dim_date": {
+        "silver_path": "silver/date_dim/",
+        "gold_path": "gold/dim_date/",
+        "table_type": "dimension",
+        "transformation_type": "distinct",
+        "scd_type": "SCD1",
+        "select_columns": [
+            "DATE_KEY",
+            "DAY_OF_WEEK",
+            "WEEK",
+            "MONTH",
+            "YEAR",
+            "IS_WEEKEND",
+            "IS_HOLIDAY",
+            "HOLIDAY_NAME"
+        ],
+        "business_keys": [
+            "DATE_KEY"
+        ],
+        "surrogate_key": null
+    },
+    "dim_item": {
+        "silver_path": "silver/order_items/",
+        "gold_path": "gold/dim_item/",
+        "table_type": "dimension",
+        "transformation_type": "distinct",
+        "scd_type": "SCD1",
+        "select_columns": [
+            "ITEM_CATEGORY",
+            "ITEM_NAME"
+        ],
+        "business_keys": [
+            "ITEM_CATEGORY",
+            "ITEM_NAME"
+        ],
+        "surrogate_key": "ITEM_KEY"
+    },
+    "dim_app": {
+        "silver_path": "silver/order_items/",
+        "gold_path": "gold/dim_app/",
+        "table_type": "dimension",
+        "transformation_type": "distinct",
+        "scd_type": "SCD1",
+        "select_columns": [
+            "APP_NAME"
+        ],
+        "business_key": [
+            "APP_NAME"
+        ],
+        "surrogate_key": "APP_KEY"
+    },
+    "dim_customer": {
+        "silver_path": "silver/order_items/",
+        "gold_path": "gold/dim_customer/",
+        "table_type": "fact",
+        "transformation_type": "aggregate_latest",
+        "scd_type": "SCD2",
+        "select_columns": [
+            "USER_ID"
+        ],
+        "latest_order_columns": [
+            "CREATION_TIME_UTC",
+            "updated_at"
+        ],
+        "latest_attribute_columns": [
+            "PRINTED_CARD_NUMBER",
+            "IS_LOYALTY"
+        ],
+        "group_by_columns": [
+            "USER_ID",
+            "PRINTED_CARD_NUMBER",
+            "IS_LOYALTY"
+        ],
+        "aggregations": {
+            "CREATION_TIME_UTC": {
+                "min": "FIRST_ORDER_DATE",
+                "max": "LAST_ORDER_DATE"
+            }
+        },
+        "business_keys": [
+            "USER_ID"
+        ],
+        "tracked_columns": [
+            "PRINTED_CARD_NUMBER",
+            "IS_LOYALTY"
+        ],
+        "surrogate_key": "CUSTOMER_KEY",
+        "effective_start_column": "EFFECTIVE_START_DATE",
+        "effective_end_column": "EFFECTIVE_END_DATE",
+        "current_flag_column": "IS_CURRENT"
+    },
+    "dim_restaurant": {
+        "silver_path": "silver/order_items/",
+        "gold_path": "gold/dim_restaurant/",
+        "table_type": "dimension",
+        "transformation_type": "distinct",
+        "scd_type": "SCD1",
+        "select_columns": [
+            "RESTAURANT_ID"
+        ],
+        "business_keys": [
+            "RESTAURANT_ID"
+        ],
+        "surrogate_key": "RESTAURANT_KEY"
+    },
+    "fact_order_items": {
+        "table_type": "fact",
+        "fact_type": "order_items",
+        "silver_path": "silver/order_items/",
+        "options_silver_path": "silver/order_item_options/",
+        "gold_path": "gold/fact_order_items/",
+        "business_keys": [
+            "ORDER_ID",
+            "LINEITEM_ID"
+        ],
+        "dimension_lookups": [
+            {
+                "dimension_path": "gold/dim_item/",
+                "lookup_type": "SCD1",
+                "source_keys": [
+                    "ITEM_CATEGORY",
+                    "ITEM_NAME"
+                ],
+                "dimension_keys": [
+                    "ITEM_CATEGORY",
+                    "ITEM_NAME"
+                ],
+                "surrogate_key": "ITEM_KEY"
+            },
+            {
+                "dimension_path": "gold/dim_app/",
+                "lookup_type": "SCD1",
+                "source_keys": [
+                    "APP_NAME"
+                ],
+                "dimension_keys": [
+                    "APP_NAME"
+                ],
+                "surrogate_key": "APP_KEY"
+            },
+            {
+                "dimension_path": "gold/dim_restaurant/",
+                "lookup_type": "SCD1",
+                "source_keys": [
+                    "RESTAURANT_ID"
+                ],
+                "dimension_keys": [
+                    "RESTAURANT_ID"
+                ],
+                "surrogate_key": "RESTAURANT_KEY"
+            },
+            {
+                "dimension_path": "gold/dim_customer/",
+                "lookup_type": "SCD2",
+                "source_keys": [
+                    "USER_ID"
+                ],
+                "dimension_keys": [
+                    "USER_ID"
+                ],
+                "surrogate_key": "CUSTOMER_KEY",
+                "effective_start_column": "EFFECTIVE_START_DATE",
+                "effective_end_column": "EFFECTIVE_END_DATE",
+                "fact_date_column": "CREATION_TIME_UTC"
+            }
+        ],
+        "write_mode": "merge"
+    },
+    "fact_order_item_options": {
+        "table_type": "fact",
+        "fact_type": "order_item_options",
+        "silver_path": "silver/order_item_options/",
+        "gold_path": "gold/fact_order_item_options/",
+        "business_keys": [
+            "OPTION_ID"
+        ],
+        "select_columns": [
+            "OPTION_ID",
+            "ORDER_ID",
+            "LINEITEM_ID",
+            "OPTION_GROUP_NAME",
+            "OPTION_NAME",
+            "OPTION_PRICE",
+            "OPTION_QUANTITY"
+        ],
+        "write_mode": "merge"
+    },
+    "fact_customer_daily": {
+        "table_type": "fact",
+        "fact_type": "customer_daily",
+        "source_type": "gold",
+        "source_path": "gold/fact_order_items/",
+        "gold_path": "gold/fact_customer_daily/",
+        "business_keys": [
+            "USER_ID",
+            "DATE_KEY"
+        ],
+        "rfm_days": 90,
+        "spend_period_days": 30,
+        "churn_threshold_days": 45,
+        "write_mode": "merge"
+    }
+}
