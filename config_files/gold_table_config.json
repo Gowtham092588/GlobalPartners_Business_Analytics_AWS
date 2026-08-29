@@ -85,6 +85,10 @@
             "PRINTED_CARD_NUMBER",
             "IS_LOYALTY"
         ],
+        "update_columns": [
+            "FIRST_ORDER_DATE",
+            "LAST_ORDER_DATE"
+        ],
         "surrogate_key": "CUSTOMER_KEY",
         "effective_start_column": "EFFECTIVE_START_DATE",
         "effective_end_column": "EFFECTIVE_END_DATE",
