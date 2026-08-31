@@ -259,8 +259,8 @@ def merge_current_records(df, config):
                 df.alias("source"),
                 merge_condition
             )
-            .WhenMatchedUpdateAll()
-            .WhenNotMatchedInsertAll()
+            .whenMatchedUpdateAll()
+            .whenNotMatchedInsertAll()
             .execute()
         )
 

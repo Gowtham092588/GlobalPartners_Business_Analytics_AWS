@@ -45,7 +45,7 @@
         "select_columns": [
             "APP_NAME"
         ],
-        "business_key": [
+        "business_keys": [
             "APP_NAME"
         ],
         "surrogate_key": "APP_KEY"
@@ -53,7 +53,7 @@
     "dim_customer": {
         "silver_path": "silver/order_items/",
         "gold_path": "gold/dim_customer/",
-        "table_type": "fact",
+        "table_type": "dimension",
         "transformation_type": "aggregate_latest",
         "scd_type": "SCD2",
         "select_columns": [

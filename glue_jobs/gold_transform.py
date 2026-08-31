@@ -332,8 +332,8 @@ def apply_scd2(transformed_df, config):
     business_keys = config["business_keys"]
     tracked_columns = config["tracked_columns"]
     surrogate_key = config["surrogate_key"]
-    start_column = config["effective_start_date"]
-    end_column = config["effective_end_date"]
+    start_column = config["effective_start_column"]
+    end_column = config["effective_end_column"]
     current_flag_column = config["current_flag_column"]
 
     output_path = (f"s3://{GOLD_BUCKET}/{gold_path}")
