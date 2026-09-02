@@ -1236,15 +1236,27 @@ def add_customer_segments(
         daily_df
         .withColumn(
             "R_SCORE",
-            F.ntile(5).over(recency_window)
+            F.when(F.col("RECENCY") <= 30, 5)
+            .when(F.col("RECENCY") <= 60, 4)
+            .when(F.col("RECENCY") <= 90, 3)
+            .when(F.col("RECENCY") <= 180, 2)
+            .otherwise(1)
         )
         .withColumn(
             "F_SCORE",
-            F.ntile(5).over(frequency_window)
+            F.when(F.col("FREQUENCY") == 0, 1)
+            .when(F.col("FREQUENCY") == 1, 2)
+            .when(F.col("FREQUENCY") <= 3, 3)
+            .when(F.col("FREQUENCY") <= 6, 4)
+            .otherwise(5)
         )
         .withColumn(
             "M_SCORE",
-            F.ntile(5).over(monetary_window)
+            F.when(F.col("MONETARY") == 0, 1)
+            .when(F.col("MONETARY") <= 11, 2)
+            .when(F.col("MONETARY") <= 26, 3)
+            .when(F.col("MONETARY") <= 51, 4)
+            .otherwise(5)
         )
     )
 
@@ -1258,25 +1270,21 @@ def add_customer_segments(
             "CUSTOMER_SEGMENT",
 
             F.when(
-                (F.col("R_SCORE") >= 4)
-                & (F.col("F_SCORE") >= 4)
-                & (F.col("M_SCORE") >= 4),
-
-                F.lit("VIP")
+                F.col("RECENCY") > churn_threshold_days,
+                F.lit("CHURN_RISK")
             )
 
             .when(
-                (F.col("FREQUENCY") <= 1)
-                & (F.col("R_SCORE") >= 4),
-
+                (F.col("RECENCY") <= 30)
+                & (F.col("FREQUENCY") <= 1),
                 F.lit("NEW_CUSTOMER")
             )
 
             .when(
-                (F.col("RECENCY") > churn_threshold_days)
-                & (F.col("F_SCORE") <= 2),
-
-                F.lit("CHURN_RISK")
+                (F.col("R_SCORE") >= 4)
+                & (F.col("F_SCORE") >= 4)
+                & (F.col("M_SCORE") >= 4),
+                F.lit("VIP")
             )
 
             .otherwise(

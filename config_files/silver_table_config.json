@@ -9,6 +9,24 @@
         ],
         "write_mode": "overwrite",
         "watermark_column": "updated_at",
+        "range_validations": {
+            "ITEM_PRICE": {
+                "min": 0,
+                "max": 500
+            },
+            "ITEM_QUANTITY": {
+                "min": 1,
+                "max": 100
+            }
+        },
+        "value_mappings": {
+            "ITEM_CATEGORY": {
+                "Drip C": "Drip Coffee",
+                "Bowls0": "Bowls",
+                "Sqalads": "Salads",
+                "Sandwiches`1": "Sandwiches"
+            }
+        },
         "cast_columns": {
             "APP_NAME": "string",
             "RESTAURANT_ID": "string",
@@ -50,11 +68,11 @@
     "date_dim": {
         "bronze_path": "bronze/date_dim/",
         "silver_path": "silver/date_dim/",
-        "load_type": "SCD1",
+        "load_type": "FULL",
         "business_keys": [
             "DATE_KEY"
         ],
-        "write_mode": "merge",
+        "write_mode": "overwrite",
         "watermark_column": "updated_at",
         "cast_columns": {
             "DATE_KEY": "date",

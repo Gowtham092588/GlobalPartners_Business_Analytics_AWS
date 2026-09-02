@@ -202,7 +202,7 @@
         ],
         "rfm_days": 90,
         "spend_period_days": 30,
-        "churn_threshold_days": 45,
+        "churn_threshold_days": 90,
         "write_mode": "merge"
     }
 }

@@ -8,3 +8,6 @@ reduce
 operator
 datetime 
 timezone
+streamlit
+altair
+plotly

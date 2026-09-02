@@ -79,6 +79,62 @@ def read_bronze_table(bronze_path):
         raise
 
 
+def clean_string_columns(df):
+
+    string_columns = []
+
+    for field in df.schema.fields:
+
+        if isinstance(field.dataType, StringType):
+
+            string_columns.append(field.name)
+
+    for column_name in string_columns:
+
+        df = (
+            df
+            .withColumn(
+                column_name,
+                F.trim(
+                    F.regexp_replace(
+                        F.regexp_replace(
+                            F.col(column_name),
+                            r"https?://\S+",
+                            ""
+                        ),
+                        r"\s+",
+                        " "
+                    )
+                )
+            )
+        )
+    return df
+
+
+def apply_value_mappings(df, config):
+
+    value_mappings = config.get(
+        "value_mappings",
+        {}
+    )
+
+    for column_name, mappings in value_mappings.items():
+
+        for old_value, new_value in mappings.items():
+
+            df = df.withColumn(
+                column_name,
+                F.when(
+                    F.col(column_name) == old_value,
+                    F.lit(new_value)
+                ).otherwise(
+                    F.col(column_name)
+                )
+            )
+
+    return df
+
+
 def filter_invalid_records(df, config):
 
     try:
@@ -102,6 +158,46 @@ def filter_invalid_records(df, config):
             else:
 
                 invalid_condition = (invalid_condition | condition)
+
+        range_validations = config.get("range_validations", {})
+
+        for column_name, valid_range in range_validations.items():
+
+            min_value = valid_range.get("min")
+            max_value = valid_range.get("max")
+
+            logger.info(
+                f"Applying range validation for {column_name}: "
+                f"min={min_value}, max={max_value}"
+            )
+
+            range_condition = None
+
+            if min_value is not None:
+
+                range_condition = F.col(column_name) < min_value
+
+            if max_value is not None:
+
+                max_condition = F.col(column_name) > max_value
+
+                if range_condition is None:
+
+                    range_condition = max_condition
+
+                else:
+
+                    range_condition = (range_condition | max_condition)
+
+            if range_condition is not None:
+
+                if invalid_condition is None:
+
+                    invalid_condition = range_condition
+
+                else:
+
+                    invalid_condition = (invalid_condition | range_condition)
 
         valid_df = df.filter(~invalid_condition)
 
@@ -164,16 +260,6 @@ def apply_transformations(df, table_name, config):
     try:
 
         transformed_df = df
-
-        for field in transformed_df.schema.fields:
-
-            if isinstance(field.dataType, StringType):
-
-                transformed_df = transformed_df.withColumn(
-                    field.name,
-                    F.trim(F.col(field.name))
-                )
-
         cast_columns = config.get("cast_columns", {})
 
         for column_name, data_type in cast_columns.items():
@@ -385,11 +471,23 @@ def main():
 
         bronze_df = read_bronze_table(config["bronze_path"])
 
+        if bronze_df.rdd.isEmpty():
+            logger.info("No records to process")
+            return
+
         valid_df, invalid_df = filter_invalid_records(bronze_df, config)
 
         write_quarantine_records(invalid_df, table_name)
 
-        latest_df = keep_latest_records(valid_df, config)
+        cleaned_valid_df = clean_string_columns(
+            valid_df
+        )
+
+        mapped_valid_df = apply_value_mappings(
+            cleaned_valid_df, config
+        )
+
+        latest_df = keep_latest_records(mapped_valid_df, config)
 
         transformed_df = apply_transformations(latest_df, table_name, config)
 
