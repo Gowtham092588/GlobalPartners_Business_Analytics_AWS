@@ -32,6 +32,6 @@ jobs:
       
       - name: Validate JSON config files
         run: |
-          python -m json.tool config/bronze_table_config.json > /dev/null
-          python -m json.tool config/silver_table_config.json > /dev/null
-          python -m json.tool config/gold_table_config.json > /dev/null
+          python -m json.tool config_files/bronze_table_config.json > /dev/null
+          python -m json.tool config_files/silver_table_config.json > /dev/null
+          python -m json.tool config_files/gold_table_config.json > /dev/null
