@@ -35,3 +35,11 @@ jobs:
           python -m json.tool config_files/bronze_table_config.json > /dev/null
           python -m json.tool config_files/silver_table_config.json > /dev/null
           python -m json.tool config_files/gold_table_config.json > /dev/null
+      
+      - name: Install test dependencies
+        run: |
+          pip install pytest pandas pyspark delta-spark
+      
+      - name: Run unit tests
+        run: |
+          python -m pytest tests/
