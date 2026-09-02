@@ -103,8 +103,8 @@ def main():
             "Average Order Value",
             f"${loyalty_row['AVG_ORDER_VALUE']:.2f}",
             delta=(
-                f"${loyalty_row['AVG_ORDER_VALUE']
-                    - non_loyalty_row['AVG_ORDER_VALUE']:.2f} vs non-loyalty"
+                f"${loyalty_row['AVG_ORDER_VALUE'] - non_loyalty_row['AVG_ORDER_VALUE']:.2f} "
+                "vs non-loyalty"
             )
         )
 
@@ -113,8 +113,8 @@ def main():
             "Average Lifetime Orders",
             f"{loyalty_row['AVG_LIFETIME_ORDERS']:.2f}",
             delta=(
-                f"{loyalty_row['AVG_LIFETIME_ORDERS']
-                   - non_loyalty_row['AVG_LIFETIME_ORDERS']:.2f} vs non-loyalty"
+                f"{loyalty_row['AVG_LIFETIME_ORDERS'] - non_loyalty_row['AVG_LIFETIME_ORDERS']:.2f} "
+                "vs non-loyalty"
             )
         )
 
@@ -123,8 +123,8 @@ def main():
             "Repeat Customer Rate",
             f"{loyalty_row['REPEAT_CUSTOMER_RATE']:.1f}%",
             delta=(
-                f"{loyalty_row['REPEAT_CUSTOMER_RATE']
-                   - non_loyalty_row['REPEAT_CUSTOMER_RATE']:.1f}% vs non-loyalty"
+                f"{loyalty_row['REPEAT_CUSTOMER_RATE'] - non_loyalty_row['REPEAT_CUSTOMER_RATE']:.1f}% "
+                "vs non-loyalty"
             )
         )
 
@@ -133,8 +133,8 @@ def main():
             "Average CLV",
             f"${loyalty_row['AVG_CLV']:.2f}",
             delta=(
-                f"${loyalty_row['AVG_CLV']
-                    - non_loyalty_row['AVG_CLV']:.2f} vs non-loyalty"
+                f"${loyalty_row['AVG_CLV'] - non_loyalty_row['AVG_CLV']:.2f} "
+                "vs non-loyalty"
             )
         )
 

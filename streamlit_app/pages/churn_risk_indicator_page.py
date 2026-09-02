@@ -62,25 +62,25 @@ def main():
     with col1:
         st.metric(
             label="Customers At Risk",
-            value=f"{kpis["at_risk_customers"]:,}"
+            value=f"{kpis['at_risk_customers']:,}"
         )
 
     with col2:
         st.metric(
             label="Churn Risk Rate",
-            value=f"{kpis["churn_risk_rate"]:.1f}%"
+            value=f"{kpis['churn_risk_rate']:.1f}%"
         )
 
     with col3:
         st.metric(
             label="Avg Days Since Last Order",
-            value=f"{kpis["avg_days_since_last_order"]:.2f}"
+            value=f"{kpis['avg_days_since_last_order']:.2f}"
         )
 
     with col4:
         st.metric(
             label="Customers With Measurable Spend Decline",
-            value=f"{kpis["declining_spend_customers"]:,}"
+            value=f"{kpis['declining_spend_customers']:,}"
         )
 
     churn_chart_df = churn_df.copy()
