@@ -249,9 +249,6 @@ def main():
 
         config = silver_config[table_name]
 
-        logger.info(
-            "Starting Silver transformation job - CI/CD deployment test")
-
         logger.info(f"Starting Silver transformation for {table_name}")
 
         bronze_df = read_bronze_table(config["bronze_path"])
