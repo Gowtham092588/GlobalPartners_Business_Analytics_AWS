@@ -1,0 +1,40 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  deploy:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::229378727976:role/GitHubActionsGlobalPartnersDeployRole
+          aws-region: us-east-2
+
+      - name: Deploy Glue scripts to S3
+        run: |
+          aws s3 sync glue_jobs/ s3://globalpartners-aws-data-bkt/glue_jobs/
+
+      - name: Deploy config files to S3
+        run: |
+          aws s3 sync config/ s3://globalpartners-aws-data-bkt/config/
