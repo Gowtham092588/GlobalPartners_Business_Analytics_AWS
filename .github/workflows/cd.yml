@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy config files to S3
         run: |
-          aws s3 sync config/ s3://globalpartners-aws-data-bkt/config/
+          aws s3 sync config_files/ s3://globalpartners-aws-data-bkt/config/
