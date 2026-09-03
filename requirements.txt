@@ -1,13 +1,4 @@
 boto3
-pyspark
-json
-sys
-logging
-delta.table
-reduce
-operator
-datetime 
-timezone
 streamlit
 altair
 plotly
