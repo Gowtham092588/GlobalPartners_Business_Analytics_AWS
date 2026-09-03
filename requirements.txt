@@ -11,3 +11,5 @@ timezone
 streamlit
 altair
 plotly
+pandas
+
